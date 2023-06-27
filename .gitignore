@@ -1,0 +1,19 @@
+
+# misc OS/development debris
+.cache
+compile_commands.json
+desktop.ini
+.directory
+.DS_Store
+.[Tt]rash*
+.vs
+.vscode
+
+# intermediate object files
+/obj
+
+# compiled EFI application
+/BOOTX64.EFI
+
+# testing disk image
+/snakefi.img

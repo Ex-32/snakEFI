@@ -1,0 +1,7 @@
+#pragma once
+
+#define VERSION_MAJOR L"0"
+#define VERSION_MINOR L"1"
+#define VERSION_PATCH L"0"
+
+#define VERSION VERSION_MAJOR L"." VERSION_MINOR L"." VERSION_PATCH
