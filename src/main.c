@@ -1,6 +1,4 @@
 
-#include <stdarg.h>
-
 #include <efi.h>
 
 #include "version.h"
@@ -15,7 +13,6 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
 
     okOrPanic(ST->ConOut->ClearScreen(ST->ConOut));
     puts(L"SnakEFI v" VERSION "\r\n~ press any key to continue ~\r\n");
-
     waitForUser();
     
     puts(L"locating Graphics Output Protocol...  ");
@@ -100,31 +97,7 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
     okOrPanic(gop->SetMode(gop, selection));
     ST->ConOut->ClearScreen(ST->ConOut);
 
-
-
-   //  puts(L"getting filesystem handle...  ");
-   //  EFI_FILE_HANDLE rootDir = getRootDir();
-   //  puts(L"done!\r\n");
-   //
-   //  print(L"loading font file \"%s\"...  ", FONT16);
-   //  EFI_FILE_HANDLE fontFile;
-   //
-   //  rootDir->Open(
-   //      rootDir, 
-   //      &fontFile, 
-   //      FONT16, 
-   //      EFI_FILE_MODE_READ, 
-   //      EFI_FILE_READ_ONLY // <- this only applys with EFI_FILE_MODE_CREATE
-   //  );
-   //
-   //  loadPsfFont(fontFile); 
-   //  puts(L"done!\r\n");
-   //  waitForUser();
-   // 
-   //  CHAR16* hello = L"Hello, World!";
-   //  for (UINTN i = 0; hello[i] > 0; ++i) {
-   //      putchar(hello[i], i, 0, 0xFF0000u, 0u);
-   //  }
+    drawRect(gop, 10, 10, 100, 100, 0xFF0000);
 
     puts(L"\r\n~ reached end of efi_main() ~\r\n");
     waitForUser();

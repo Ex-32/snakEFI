@@ -7,20 +7,6 @@ extern EFI_BOOT_SERVICES* BS;
 
 extern EFI_HANDLE imgHandle;
 
-typedef struct {
-    UINT32 x;
-    UINT32 y;
-} point_u32_t;
-
-typedef union {
-    UINT32 hex;
-    struct {
-        UINT8 r;
-        UINT8 g;
-        UINT8 b;
-    };
-} color_t;
-
 // exits with `status` if it's an error; quick and dirty error handling
 static inline VOID okOrPanic(EFI_STATUS status) {
     if (EFI_ERROR(status)) BS->Exit(imgHandle, status, 0, NULL);

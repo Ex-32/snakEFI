@@ -4,7 +4,6 @@
 #include <stdarg.h>
 
 #include "utils.h"
-#include "x86_64/efibind.h"
 
 EFI_SYSTEM_TABLE* ST;
 EFI_BOOT_SERVICES* BS;
@@ -121,5 +120,5 @@ UINTN strToUint(CHAR16* buf, UINT8 base) {
     }
 
     return x;
-
 }
+

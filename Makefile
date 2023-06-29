@@ -1,7 +1,7 @@
 
 # user config
 TARGET = BOOTX64.EFI
-SRC = main.c utils.c gop.c
+SRC = main.c utils.c gop.c snake.c
 EXPORTS := $(TARGET)
 UEFI_IMG = /usr/share/edk2/x64/OVMF_CODE.4m.fd
 

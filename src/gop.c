@@ -13,11 +13,25 @@ EFI_GRAPHICS_OUTPUT_PROTOCOL* getGop(VOID) {
     return gop;
 }
 
-VOID plotPixel(point_u32_t pos, color_t color) {
-    if (gop == NULL) getGop();
-    *((UINT32*)(
-        gop->Mode->FrameBufferBase + 
-        4 * gop->Mode->Info->PixelsPerScanLine * pos.y + 
-        4 * pos.x
-    )) = color.hex;
+VOID drawRect(
+  EFI_GRAPHICS_OUTPUT_PROTOCOL* gop,
+  UINTN x, UINTN y,
+  UINTN w, UINTN h,
+  UINT32 color
+) {
+  if ((x + w) > gop->Mode->Info->HorizontalResolution || 
+      (y + h) > gop->Mode->Info->VerticalResolution ) return;
+
+  const UINTN pixelsPerLine = gop->Mode->Info->PixelsPerScanLine;
+
+  UINT32* base = (VOID*)gop->Mode->FrameBufferBase;
+  base += (pixelsPerLine * y) + x;
+
+  for (UINTN i = 0; i < h; ++i) {
+    UINT32* offset = base + (pixelsPerLine * i);
+    for (UINTN j = 0; j < w; ++j) {
+      *(offset + j) = color;
+    }
+  }
 }
+
