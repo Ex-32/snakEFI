@@ -2,11 +2,12 @@
 #include <efi.h>
 
 #include "snake.h"
+#include "gop.h"
 #include "utils.h"
 
-struct snake_node* snake_front = NULL;
-struct snake_node* snake_end = NULL;
-enum snake_direction direction;
+static struct snake_node* snake_front = NULL;
+static struct snake_node* snake_end = NULL;
+static enum snake_direction direction;
 
 VOID snake_front_append(struct vec2 value) {
     if (snake_front == NULL) {
@@ -29,7 +30,7 @@ VOID snake_front_append(struct vec2 value) {
     }
 }
 
-struct vec2 snake_end_pop() {
+struct vec2 snake_end_pop(VOID) {
     struct vec2 value = snake_end->value;
     
     struct snake_node* prev = snake_end->prev;
@@ -40,18 +41,19 @@ struct vec2 snake_end_pop() {
     return value;
 }
 
-struct vec2 snake_font_peak() {
+struct vec2 snake_font_peak(VOID) {
     return snake_front->value;
 }
 
-VOID snake_read_input() {
+VOID snake_read_input(VOID) {
 
 }
 
-VOID snake_update_state() {
+VOID snake_update_state(VOID) {
 
 }
 
-VOID snake_draw_frame() {
+VOID snake_draw_frame(VOID) {
+    EFI_GRAPHICS_OUTPUT_PROTOCOL* gop = getGop();
 
 }
