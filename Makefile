@@ -1,9 +1,9 @@
 
 # user config
 TARGET = BOOTX64.EFI
-SRC = main.c utils.c gop.c snake.c
+SRC = main.c utils.c gop.c snake.c rng.c
 EXPORTS := $(TARGET)
-UEFI_IMG = /usr/share/edk2/x64/OVMF_CODE.4m.fd
+UEFI_IMG = /usr/share/edk2/x64/OVMF_CODE.fd
 
 # boiler plate config
 CC = clang

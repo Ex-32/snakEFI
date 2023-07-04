@@ -4,6 +4,7 @@
 #include "version.h"
 #include "utils.h"
 #include "gop.h"
+#include "rng.h"
 
 EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
     // in gnu-efi this would be handled by InitalizeLib(ih, st);
@@ -96,6 +97,16 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
 
     okOrPanic(gop->SetMode(gop, selection));
     ST->ConOut->ClearScreen(ST->ConOut);
+
+    {
+        EFI_TIME time;
+        ST->RuntimeServices->GetTime(&time, NULL);
+        srand(
+            (time.Year + 1) * (time.Month + 1) * (time.Day + 1) *
+            (time.Hour + 1) * (time.Minute + 1) * (time.Second) + 
+            time.Nanosecond
+        );
+    }
 
     drawRect(gop, 10, 10, 100, 100, 0xFF0000);
 
