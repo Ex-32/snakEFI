@@ -13,10 +13,12 @@ struct snake_node {
     struct vec2 value;
 };
 
-enum snake_direction { snake_up, snake_down, snake_left, snake_right };
+enum snake_direction { snakeUp, snakeDown, snakeLeft, snakeRight };
 
-VOID snake_front_append(struct vec2 value);
-struct vec2 snake_end_pop(VOID);
-struct vec2 snake_front_peak(VOID);
+extern BOOLEAN snakeRunning;
+extern BOOLEAN snakeWon;
 
+VOID snakeInit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx);
+VOID snakeDeinit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx); 
+VOID snakeDoTick(VOID);
 

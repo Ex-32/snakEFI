@@ -1,6 +1,4 @@
-
 #include <efi.h> 
-
 #include "rng.h"
 
 // implementation of a xorshiro256** PRNG based on:

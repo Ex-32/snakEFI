@@ -1,8 +1,5 @@
-
 #include <efi.h>
-
 #include <stdarg.h>
-
 #include "utils.h"
 
 EFI_SYSTEM_TABLE* ST;
@@ -49,6 +46,8 @@ void print(CHAR16* fmt, ...) {
             } else if (*str == L's') {
                 CHAR16* x = va_arg(args, CHAR16*);
                 puts(x);
+            } else if (*str == L'%') {
+                puts(L"%");
             }
             fmt_char = FALSE;
         } else if (*str == L'%') {
@@ -120,5 +119,31 @@ UINTN strToUint(CHAR16* buf, UINT8 base) {
     }
 
     return x;
+}
+
+CHAR16* readline(CHAR16* buf, UINTN bufSize) {
+    UINTN i = 0;
+    while (TRUE) {
+        EFI_INPUT_KEY key;
+        EFI_STATUS status = ST->ConIn->ReadKeyStroke(ST->ConIn, &key);
+        if (status == (EFI_STATUS)EFI_NOT_READY) continue;
+
+        if (key.UnicodeChar == CHAR_BACKSPACE) {
+            if (i <= 0) continue;
+            --i;
+        } else if (key.UnicodeChar == CHAR_CARRIAGE_RETURN) {
+            ST->ConOut->EnableCursor(ST->ConOut, FALSE);
+            puts(L"\r\n");
+            buf[i] = 0; // null terminator
+            break;
+        } else if (i < bufSize - 1) {
+            buf[i] = key.UnicodeChar;
+            ++i;
+        }
+
+        CHAR16 str[2] = { key.UnicodeChar, 0 };
+        ST->ConOut->OutputString(ST->ConOut, str); 
+    }
+    return buf;
 }
 

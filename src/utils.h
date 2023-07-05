@@ -1,5 +1,4 @@
 #pragma once
-
 #include <efi.h>
 
 extern EFI_SYSTEM_TABLE* ST;
@@ -26,4 +25,7 @@ VOID print(CHAR16* fmt, ...);
 
 CHAR16* uintToStr(UINTN num, CHAR16* buf, UINT8 base);
 UINTN strToUint(CHAR16* buf, UINT8 base);
+
+
+CHAR16* readline(CHAR16* buf, UINTN bufSize);
 

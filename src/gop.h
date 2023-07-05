@@ -1,11 +1,10 @@
 #pragma once
-
 #include <efi.h>
-
 #include "utils.h"
 #include "x86_64/efibind.h"
 
-EFI_GRAPHICS_OUTPUT_PROTOCOL* getGop(VOID);
+extern EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
+VOID gopInit(VOID);
 
 VOID drawRect(
   EFI_GRAPHICS_OUTPUT_PROTOCOL* gop,

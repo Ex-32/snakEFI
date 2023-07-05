@@ -1,10 +1,10 @@
-
 #include <efi.h>
-
+#include "efiapi.h"
 #include "version.h"
 #include "utils.h"
 #include "gop.h"
 #include "rng.h"
+#include "snake.h"
 
 EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
     // in gnu-efi this would be handled by InitalizeLib(ih, st);
@@ -15,9 +15,16 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
     okOrPanic(ST->ConOut->ClearScreen(ST->ConOut));
     puts(L"SnakEFI v" VERSION "\r\n~ press any key to continue ~\r\n");
     waitForUser();
-    
+   
+    puts(L"locationg Input Ex Protocol...  ");
+    EFI_GUID inputExGuid = EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID;
+    EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx;
+    okOrPanic(BS->LocateProtocol(&inputExGuid, NULL, (VOID**)&inputEx));
+    puts(L"done!\r\n");
+
+
     puts(L"locating Graphics Output Protocol...  ");
-    EFI_GRAPHICS_OUTPUT_PROTOCOL* gop = getGop();
+    gopInit();
     EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* info;
     EFI_STATUS status;
     UINTN sizeOfInfo;
@@ -26,9 +33,7 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
 
     status = gop->QueryMode(gop, gop->Mode? gop->Mode->Mode : 0, &sizeOfInfo, &info);
 
-    if (status == (EFI_STATUS)EFI_NOT_STARTED) {
-        gop->SetMode(gop, 0);
-    }
+    if (status == (EFI_STATUS)EFI_NOT_STARTED) gop->SetMode(gop, 0);
 
     if (EFI_ERROR(status)) {
         puts(L"\r\nunable to query native graphics mode :(\r\n");
@@ -60,35 +65,13 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
     ST->ConOut->EnableCursor(ST->ConOut, TRUE);
     ST->ConIn->Reset(ST->ConIn, FALSE);
 
-    static const UINTN BUF_SIZE = 100;
-    CHAR16* buf = bmalloc(BUF_SIZE * sizeof(CHAR16));
-    UINTN i = 0;
-
-    while (TRUE) {
-        EFI_INPUT_KEY key;
-        EFI_STATUS status = ST->ConIn->ReadKeyStroke(ST->ConIn, &key);
-        if (status == (EFI_STATUS)EFI_NOT_READY) continue;
-
-        if (key.UnicodeChar == CHAR_BACKSPACE) {
-            if (i <= 0) continue;
-            --i;
-        } else if (key.UnicodeChar == CHAR_CARRIAGE_RETURN) {
-            ST->ConOut->EnableCursor(ST->ConOut, FALSE);
-            puts(L"\r\n");
-            buf[i] = 0; // null terminator
-            break;
-        } else if (i < BUF_SIZE - 1) {
-            buf[i] = key.UnicodeChar;
-            ++i;
-        }
-
-        CHAR16 str[2] = { key.UnicodeChar, 0 };
-        ST->ConOut->OutputString(ST->ConOut, str); 
+    UINTN selection;
+    {
+        static const UINTN BUF_SIZE = 100;
+        CHAR16* buf = bmalloc(BUF_SIZE * sizeof(CHAR16));
+        selection = strToUint(readline(buf, BUF_SIZE), 10); 
+        bfree(buf);
     }
-
-    UINTN selection = strToUint(buf, 10); 
-    bfree(buf);
-    buf = NULL;
     
     if (selection > numModes) {
         print(L"display mode \"%u\" invalid!\r\n", selection);
@@ -98,17 +81,18 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
     okOrPanic(gop->SetMode(gop, selection));
     ST->ConOut->ClearScreen(ST->ConOut);
 
-    {
-        EFI_TIME time;
-        ST->RuntimeServices->GetTime(&time, NULL);
-        srand(
-            (time.Year + 1) * (time.Month + 1) * (time.Day + 1) *
-            (time.Hour + 1) * (time.Minute + 1) * (time.Second) + 
-            time.Nanosecond
-        );
+    EFI_EVENT timer;
+    UINTN index;
+    snakeInit(inputEx);
+    while(snakeRunning) {
+        BS->CreateEvent(EVT_TIMER, TPL_APPLICATION, NULL, NULL, &timer);
+        BS->SetTimer(timer, TimerRelative, 3000000/*unit = 100ns*/);
+        snakeDoTick();
+        BS->WaitForEvent(1, &timer, &index);
+        BS->CloseEvent(timer);
     }
-
-    drawRect(gop, 10, 10, 100, 100, 0xFF0000);
+    snakeDeinit(inputEx);
+    ST->ConOut->ClearScreen(ST->ConOut);
 
     puts(L"\r\n~ reached end of efi_main() ~\r\n");
     waitForUser();
