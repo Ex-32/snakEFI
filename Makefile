@@ -33,11 +33,13 @@ $(IMG_FILE): $(EXPORTS)
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
+img: $(IMG_FILE)
+
 run: $(IMG_FILE)
 	sudo qemu-system-x86_64 -drive if=pflash,format=raw,file=$(UEFI_IMG) -drive format=raw,file=$(IMG_FILE)
 
 clean:
 	rm -vrf $(OBJDIR) $(TARGET) $(IMG_FILE)
 
-.PHONY: build run clean
+.PHONY: build run clean img
 
