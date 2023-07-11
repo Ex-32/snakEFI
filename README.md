@@ -14,18 +14,18 @@ Download the latest `BOOTX64.EFI` image from the releases page and copy it to a 
 To run snakEFI in a VM you need to download the image, install the VM dependencies and then run the following from the same directory as the `BOOTX64.EFI` file:
 
 ```bash
-dd if=/dev/zero of=snakefi.img bs=1k count=1440
-mformat -i snakefi.img -f 1440 ::
-mmd -i snakefi.img ::/EFI
-mmd -i snakefi.img ::/EFI/BOOT 
-mcopy -o -s -i snakefi.img BOOTX64.EFI ::/EFI/BOOT
+dd if=/dev/zero of=snakEFI.img bs=1k count=1440
+mformat -i snakEFI.img -f 1440 ::
+mmd -i snakEFI.img ::/EFI
+mmd -i snakEFI.img ::/EFI/BOOT 
+mcopy -o -s -i snakEFI.img BOOTX64.EFI ::/EFI/BOOT
 ```
 
 #### Running the VM image
-this will create a image file called `snakefi.img` which can be run with:
+this will create a image file called `snakEFI.img` which can be run with:
 
 ```bash
-sudo qemu-system-x86_64 -drive if=pflash,format=raw,file=$UEFI_IMG -drive format=raw,file=snakefi.img
+sudo qemu-system-x86_64 -drive if=pflash,format=raw,file=$UEFI_IMG -drive format=raw,file=snakEFI.img
 ```
 
 where `$UEFI_IMG` is the path to the OMVF firmware bundle, on my system it's `/usr/share/edk2/x64/OVMF_CODE.fd`
@@ -51,7 +51,7 @@ Since UEFI Applications are their own unique executable format (well... it's not
 
 First, clone the repository.
 ```bash
-git clone https://github.com/Ex-32/snakefi.git && cd snakefi
+git clone https://github.com/Ex-32/snakEFI.git && cd snakEFI
 ```
 
 To just create the EFI Application binary, for example to [run on hardware](https://github.com/Ex-32/snakefi/#running-on-real-hardware) just run:
@@ -76,4 +76,4 @@ If you just want to create the VM image but not run it you can run:
 make img
 ```
 
-which will create the `snakefi.img` file, which can then be run manually as described [here](https://github.com/Ex-32/snakefi/#running-the-vm-image) or by running `make run` 
+which will create the `snakEFI.img` file, which can then be run manually as described [here](https://github.com/Ex-32/snakefi/#running-the-vm-image) or by running `make run` 
