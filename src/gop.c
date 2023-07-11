@@ -10,15 +10,15 @@ VOID gopInit(VOID) {
 }
 
 VOID drawRect(
-  EFI_GRAPHICS_OUTPUT_PROTOCOL* gop,
-  UINTN x, UINTN y,
-  UINTN w, UINTN h,
+  UINT16 x, UINT16 y,
+  UINT16 w, UINT16 h,
   UINT32 color
 ) {
-  if ((x + w) > gop->Mode->Info->HorizontalResolution || 
-      (y + h) > gop->Mode->Info->VerticalResolution ) return;
+  const EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* const info = gop->Mode->Info;
+  if ((x + w) > info->HorizontalResolution ||
+      (y + h) > info->VerticalResolution ) return;
 
-  const UINTN pixelsPerLine = gop->Mode->Info->PixelsPerScanLine;
+  const UINTN pixelsPerLine = info->PixelsPerScanLine;
 
   UINT32* base = (VOID*)gop->Mode->FrameBufferBase;
   base += (pixelsPerLine * y) + x;

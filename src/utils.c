@@ -4,7 +4,6 @@
 
 EFI_SYSTEM_TABLE* ST;
 EFI_BOOT_SERVICES* BS;
-
 EFI_HANDLE imgHandle;
 
 VOID* bmalloc(UINTN size) {
@@ -18,9 +17,9 @@ VOID bfree(VOID* buf) {
 }
 
 VOID waitForUser(VOID) {
-    UINTN keyEvent;
+    UINTN index;
     okOrPanic(ST->ConIn->Reset(ST->ConIn, FALSE));
-    okOrPanic(BS->WaitForEvent(1, &ST->ConIn->WaitForKey, &keyEvent));
+    okOrPanic(BS->WaitForEvent(1, &ST->ConIn->WaitForKey, &index));
 }
 
 void print(CHAR16* fmt, ...) {
@@ -29,8 +28,8 @@ void print(CHAR16* fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
-    CHAR16* str = fmt; 
-    BOOLEAN fmt_char = FALSE; 
+    CHAR16* str = fmt;
+    BOOLEAN fmt_char = FALSE;
     while (*str) {
         if (fmt_char) {
             if (*str == L'x') {
@@ -61,35 +60,46 @@ void print(CHAR16* fmt, ...) {
     va_end(args);
 }
 
-
-// a 43 byte buffer should always be sufficient for base 10
+// caller is responsible for ensuring that buffer is sufficiently large, meaning
+// that there is one char for each digit in the number for the base used (+1 for
+// the null terminator); for example, a 43 byte buffer should always be
+// sufficient for base 10.
 CHAR16* uintToStr(UINTN num, CHAR16* buf, UINT8 base) {
     if (base > 16 || buf == NULL) goto END;
 
-    UINTN i = 0;
-    static CHAR16 lookup[16] = {L'0', L'1', L'2', L'3', 
-                                L'4', L'5', L'6', L'7', 
-                                L'8', L'9', L'A', L'B',
-                                L'C', L'D', L'E', L'F'};
+    // there's no good reason these values can't be computed instead of using
+    // a lookup table, but this is more readable and faster, besides, it's only
+    // 32 bytes.
+    static const CHAR16 LOOKUP_TAB[16] = {L'0', L'1', L'2', L'3',
+                                          L'4', L'5', L'6', L'7',
+                                          L'8', L'9', L'A', L'B',
+                                          L'C', L'D', L'E', L'F'};
 
+    // special case for 0.
     if (num == 0) {
         buf[0] = L'0';
         buf[1] = L'\0';
         goto END;
     }
-    
+
+    // create string from number by modulo-ing by base to get least significant
+    // digit, then dividing by base to shift the number one digit down.
+    UINTN i = 0;
     while (num != 0) {
-        buf[i] = lookup[num % base];
+        buf[i] = LOOKUP_TAB[num % base];
         ++i;
         num /= base;
     }
-    
-    for (UINTN j = 0; j < i/2; ++j) {
+
+    // since numbers are processed least significant to most significant the
+    // string is created backwards and needs to be reversed.
+    for (UINTN j = 0; j < (i / 2); ++j) {
         CHAR16 temp = buf[j];
         buf[j] = buf[i - 1 - j];
         buf[i - 1 - j] = temp;
     }
-    
+
+    // don't forget your null terminator!
     buf[i] = L'\0';
 
 END: return buf;
@@ -122,6 +132,7 @@ UINTN strToUint(CHAR16* buf, UINT8 base) {
 }
 
 CHAR16* readline(CHAR16* buf, UINTN bufSize) {
+    ST->ConIn->Reset(ST->ConIn, FALSE);
     UINTN i = 0;
     while (TRUE) {
         EFI_INPUT_KEY key;
@@ -129,7 +140,7 @@ CHAR16* readline(CHAR16* buf, UINTN bufSize) {
         if (status == (EFI_STATUS)EFI_NOT_READY) continue;
 
         if (key.UnicodeChar == CHAR_BACKSPACE) {
-            if (i <= 0) continue;
+            if (i == 0) continue;
             --i;
         } else if (key.UnicodeChar == CHAR_CARRIAGE_RETURN) {
             ST->ConOut->EnableCursor(ST->ConOut, FALSE);
@@ -142,7 +153,7 @@ CHAR16* readline(CHAR16* buf, UINTN bufSize) {
         }
 
         CHAR16 str[2] = { key.UnicodeChar, 0 };
-        ST->ConOut->OutputString(ST->ConOut, str); 
+        ST->ConOut->OutputString(ST->ConOut, str);
     }
     return buf;
 }

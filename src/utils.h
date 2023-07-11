@@ -11,6 +11,8 @@ static inline VOID okOrPanic(EFI_STATUS status) {
     if (EFI_ERROR(status)) BS->Exit(imgHandle, status, 0, NULL);
 }
 
+// stdlib-like malloc/free based on the boot service allocator
+// not guaranteed to be performant
 VOID* bmalloc(UINTN size);
 VOID  bfree(VOID* buf);
 
@@ -25,7 +27,6 @@ VOID print(CHAR16* fmt, ...);
 
 CHAR16* uintToStr(UINTN num, CHAR16* buf, UINT8 base);
 UINTN strToUint(CHAR16* buf, UINT8 base);
-
 
 CHAR16* readline(CHAR16* buf, UINTN bufSize);
 
