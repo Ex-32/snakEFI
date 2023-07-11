@@ -1,4 +1,4 @@
-#include <efi.h> 
+#include <efi.h>
 #include "rng.h"
 
 // implementation of a xorshiro256** PRNG based on:
@@ -8,10 +8,10 @@
 static UINT64 s[4];
 
 VOID srand(UINT64 seed) {
-    // modulo prevents seed from always seeding first byte
-    s[seed % 4] = seed;
-    // first value is frequently (always?) 0, so we flush that out
-    rand(); 
+    *s = seed;
+    // first few values generated are not very random
+    // so we prime it a little.
+    for (UINTN i = 0; i < 8; ++i) (VOID)rand();
 }
 
 inline UINT64 roll64(UINT64 x, INT32 k) {
@@ -29,6 +29,6 @@ UINT64 rand(VOID) {
 
     s[2] ^= t;
     s[3] = roll64(s[3], 45);
-		
+
    return result;
 }

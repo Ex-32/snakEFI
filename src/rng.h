@@ -1,5 +1,4 @@
 #pragma once
-
 #include <efi.h>
 
 VOID srand(UINT64 seed);
