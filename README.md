@@ -4,16 +4,9 @@ The classic arcade game, now as a bare bones UEFI executable!
 
 ## Running
 
-<details>
-<summary>Running on real hardware</summary>
-  
 ### Running on real hardware
 
 Download the latest `BOOTX64.EFI` image from the releases page and copy it to a FAT32 formatted thumbdrive at `/EFI/BOOT/BOOTX64.EFI`. Then boot into your computers firmware and select the thumbdrive from the boot options.
-</details>
-
-<details>
-<summary>Running in a VM</summary>
 
 ### Running in a VM
 
@@ -42,7 +35,6 @@ where `$UEFI_IMG` is the path to the OMVF firmware bundle, on my system it's `/u
 - `mtools` (for creating/editing FAT32 images)
 - `qemu` (for running program in VM)
 - `edk2-ovmf` (UEFI firmware for VM)
-</details>
 
 ## Building
 
