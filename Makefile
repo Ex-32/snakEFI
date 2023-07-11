@@ -34,7 +34,7 @@ $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
 run: $(IMG_FILE)
-	sudo qemu-system-x86_64 -pflash $(UEFI_IMG) -drive format=raw,file=$(IMG_FILE)
+	sudo qemu-system-x86_64 -drive if=pflash,format=raw,file=$(UEFI_IMG) -drive format=raw,file=$(IMG_FILE)
 
 clean:
 	rm -vrf $(OBJDIR) $(TARGET) $(IMG_FILE)
