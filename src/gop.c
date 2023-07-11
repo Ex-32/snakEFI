@@ -1,6 +1,6 @@
-#include <efi.h>
 #include "gop.h"
 #include "utils.h"
+#include <efi.h>
 
 static EFI_GRAPHICS_OUTPUT_PROTOCOL* gop = NULL;
 
@@ -9,25 +9,17 @@ VOID gopInit(VOID) {
     okOrPanic(BS->LocateProtocol(&gopGuid, NULL, (void**)&gop));
 }
 
-VOID drawRect(
-  UINT16 x, UINT16 y,
-  UINT16 w, UINT16 h,
-  UINT32 color
-) {
-  const EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* const info = gop->Mode->Info;
-  if ((x + w) > info->HorizontalResolution ||
-      (y + h) > info->VerticalResolution ) return;
+VOID drawRect(UINT16 x, UINT16 y, UINT16 w, UINT16 h, UINT32 color) {
+    const EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* const info = gop->Mode->Info;
+    const UINTN pixelsPerLine = info->PixelsPerScanLine;
 
-  const UINTN pixelsPerLine = info->PixelsPerScanLine;
+    UINT32* base = (VOID*)gop->Mode->FrameBufferBase;
+    base += (pixelsPerLine * y) + x;
 
-  UINT32* base = (VOID*)gop->Mode->FrameBufferBase;
-  base += (pixelsPerLine * y) + x;
-
-  for (UINTN i = 0; i < h; ++i) {
-    UINT32* offset = base + (pixelsPerLine * i);
-    for (UINTN j = 0; j < w; ++j) {
-      *(offset + j) = color;
+    for (UINTN i = 0; i < h; ++i) {
+        UINT32* offset = base + (pixelsPerLine * i);
+        for (UINTN j = 0; j < w; ++j) {
+            *(offset + j) = color;
+        }
     }
-  }
 }
-

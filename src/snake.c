@@ -1,17 +1,14 @@
-#include <efi.h>
 #include "snake.h"
 #include "gop.h"
-#include "utils.h"
 #include "rng.h"
+#include "utils.h"
+#include <efi.h>
 
 static const UINTN GAME_WIDTH = 10;
 static const UINTN GAME_HEIGHT = 10;
 
 static VOID* notifyHandles[8];
-static CHAR16 notifyChars[8] = {L'w', L'W',
-                                L'd', L'D',
-                                L's', L'S',
-                                L'a', L'A'};
+static CHAR16 notifyChars[8] = {L'w', L'W', L'd', L'D', L's', L'S', L'a', L'A'};
 
 BOOLEAN snakeRunning = TRUE;
 BOOLEAN snakeWon = FALSE;
@@ -26,31 +23,29 @@ static UINTN pxPerBlk;
 
 EFI_STATUS EFIAPI snakeKeyNotifyHandler(EFI_KEY_DATA* keyData) {
     switch (keyData->Key.UnicodeChar) {
-        case L'w':
-        case L'W':
-            directionNext = snakeUp;
-            break;
-        case L'd':
-        case L'D':
-            directionNext = snakeRight;
-            break;
-        case L's':
-        case L'S':
-            directionNext = snakeDown;
-            break;
-        case L'a':
-        case L'A':
-            directionNext = snakeLeft;
-            break;
+    case L'w':
+    case L'W':
+        directionNext = snakeUp;
+        break;
+    case L'd':
+    case L'D':
+        directionNext = snakeRight;
+        break;
+    case L's':
+    case L'S':
+        directionNext = snakeDown;
+        break;
+    case L'a':
+    case L'A':
+        directionNext = snakeLeft;
+        break;
     }
     return EFI_SUCCESS;
 }
 
 VOID snakeFrontAppend(struct vec2 value) {
     drawRect(
-        pxPerBlk * value.x , pxPerBlk * value.y,
-        pxPerBlk, pxPerBlk,
-        0xA6E3A1
+        pxPerBlk * value.x, pxPerBlk * value.y, pxPerBlk, pxPerBlk, 0xA6E3A1
     );
     struct snakeNode* node = bmalloc(sizeof(struct snakeNode));
     node->value = value;
@@ -71,9 +66,7 @@ struct vec2 snakeEndPop(VOID) {
     struct vec2 value = snakeEnd->value;
 
     drawRect(
-        pxPerBlk * value.x , pxPerBlk * value.y,
-        pxPerBlk, pxPerBlk,
-        0x11111B
+        pxPerBlk * value.x, pxPerBlk * value.y, pxPerBlk, pxPerBlk, 0x11111B
     );
 
     if (snakeFront == snakeEnd) {
@@ -90,15 +83,11 @@ struct vec2 snakeEndPop(VOID) {
     return value;
 }
 
-inline struct vec2 snakeFrontPeak(VOID) {
-    return snakeFront->value;
-}
+inline struct vec2 snakeFrontPeak(VOID) { return snakeFront->value; }
 
 VOID spawnFruit(VOID) {
-    struct vec2 newFruit = (struct vec2){
-        rand() % GAME_WIDTH,
-        rand() % GAME_HEIGHT
-    };
+    struct vec2 newFruit =
+        (struct vec2){rand() % GAME_WIDTH, rand() % GAME_HEIGHT};
 
     struct snakeNode* node = snakeFront;
     while (TRUE) {
@@ -111,9 +100,7 @@ VOID spawnFruit(VOID) {
 
     fruit = newFruit;
     drawRect(
-        pxPerBlk * fruit.x, pxPerBlk * fruit.y,
-        pxPerBlk, pxPerBlk,
-        0xF38BA8
+        pxPerBlk * fruit.x, pxPerBlk * fruit.y, pxPerBlk, pxPerBlk, 0xF38BA8
     );
 }
 
@@ -124,21 +111,15 @@ VOID snakeInit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx) {
     pxPerBlk = hSize < vSize ? hSize : vSize;
 
     drawRect(
-        0, 0,
-        info->HorizontalResolution, info->VerticalResolution,
-        0x1E1E2E
+        0, 0, info->HorizontalResolution, info->VerticalResolution, 0x1E1E2E
     );
-    drawRect(
-        0, 0,
-        GAME_WIDTH * pxPerBlk, GAME_HEIGHT * pxPerBlk,
-        0x11111B
-    );
+    drawRect(0, 0, GAME_WIDTH * pxPerBlk, GAME_HEIGHT * pxPerBlk, 0x11111B);
 
     EFI_TIME time;
     ST->RuntimeServices->GetTime(&time, NULL);
     srand(
-        (time.Year + 1) * (time.Month + 1) * (time.Day + 1) *
-        (time.Hour + 1) * (time.Minute + 1) * (time.Second) +
+        (time.Year + 1) * (time.Month + 1) * (time.Day + 1) * (time.Hour + 1) *
+            (time.Minute + 1) * (time.Second) +
         time.Nanosecond
     );
 
@@ -149,10 +130,7 @@ VOID snakeInit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx) {
     for (UINT8 i = 0; i < 8; ++i) {
         EFI_KEY_DATA keyConf = {{0, notifyChars[i]}, {0, 0}};
         inputEx->RegisterKeyNotify(
-            inputEx,
-            &keyConf,
-            &snakeKeyNotifyHandler,
-            &(notifyHandles[i])
+            inputEx, &keyConf, &snakeKeyNotifyHandler, &(notifyHandles[i])
         );
     }
 }
@@ -167,53 +145,53 @@ VOID snakeDoTick(VOID) {
     BOOLEAN newFruit = FALSE;
 
     switch (directionNext) {
-        case snakeUp:
-            if (!(directionCurrent == snakeDown)) {
-                directionCurrent = directionNext;
-            }
-            break;
-        case snakeDown:
-            if (!(directionCurrent == snakeUp)) {
-                directionCurrent = directionNext;
-            }
-            break;
-        case snakeRight:
-            if (!(directionCurrent == snakeLeft)) {
-                directionCurrent = directionNext;
-            }
-            break;
-        case snakeLeft:
-            if (!(directionCurrent == snakeRight)) {
-                directionCurrent = directionNext;
-            }
-            break;
+    case snakeUp:
+        if (!(directionCurrent == snakeDown)) {
+            directionCurrent = directionNext;
+        }
+        break;
+    case snakeDown:
+        if (!(directionCurrent == snakeUp)) {
+            directionCurrent = directionNext;
+        }
+        break;
+    case snakeRight:
+        if (!(directionCurrent == snakeLeft)) {
+            directionCurrent = directionNext;
+        }
+        break;
+    case snakeLeft:
+        if (!(directionCurrent == snakeRight)) {
+            directionCurrent = directionNext;
+        }
+        break;
     }
 
     struct vec2 old_head = snakeFrontPeak();
     struct vec2 new_head;
     switch (directionCurrent) {
-        case snakeUp:
-            if (old_head.y == 0) goto DEAD;
-            new_head = (struct vec2){ old_head.x, old_head.y - 1 };
-            break;
-        case snakeDown:
-            if (old_head.y == GAME_HEIGHT - 1) goto DEAD;
-            new_head = (struct vec2){ old_head.x, old_head.y + 1 };
-            break;
-        case snakeRight:
-            if (old_head.x == GAME_WIDTH - 1) goto DEAD;
-            new_head = (struct vec2){ old_head.x + 1, old_head.y };
-            break;
-        case snakeLeft:
-            if (old_head.x == 0) goto DEAD;
-            new_head = (struct vec2){ old_head.x - 1, old_head.y };
-            break;
+    case snakeUp:
+        if (old_head.y == 0) goto DEAD;
+        new_head = (struct vec2){old_head.x, old_head.y - 1};
+        break;
+    case snakeDown:
+        if (old_head.y == GAME_HEIGHT - 1) goto DEAD;
+        new_head = (struct vec2){old_head.x, old_head.y + 1};
+        break;
+    case snakeRight:
+        if (old_head.x == GAME_WIDTH - 1) goto DEAD;
+        new_head = (struct vec2){old_head.x + 1, old_head.y};
+        break;
+    case snakeLeft:
+        if (old_head.x == 0) goto DEAD;
+        new_head = (struct vec2){old_head.x - 1, old_head.y};
+        break;
     }
 
-
-    if (new_head.x == fruit.x && new_head.y == fruit.y) newFruit = TRUE;
-    else snakeEndPop();
-
+    if (new_head.x == fruit.x && new_head.y == fruit.y)
+        newFruit = TRUE;
+    else
+        snakeEndPop();
 
     struct snakeNode* node = snakeFront;
     while (TRUE) {
@@ -235,6 +213,6 @@ VOID snakeDoTick(VOID) {
     if (newFruit) spawnFruit();
 
     return;
-    DEAD: snakeRunning = FALSE;
+DEAD:
+    snakeRunning = FALSE;
 }
-

@@ -1,9 +1,9 @@
-#include <efi.h>
-#include "version.h"
-#include "utils.h"
 #include "gop.h"
 #include "rng.h"
 #include "snake.h"
+#include "utils.h"
+#include "version.h"
+#include <efi.h>
 
 // entry point for EFI application
 EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
@@ -22,7 +22,6 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
     okOrPanic(BS->LocateProtocol(&inputExGuid, NULL, (VOID**)&inputEx));
     puts(L"done!\r\n");
 
-
     puts(L"locating Graphics Output Protocol...  ");
     gopInit();
     EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* info;
@@ -32,10 +31,7 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
     {
         EFI_STATUS status;
         status = gop->QueryMode(
-            gop,
-            gop->Mode? gop->Mode->Mode : 0,
-            &sizeOfInfo,
-            &info
+            gop, gop->Mode ? gop->Mode->Mode : 0, &sizeOfInfo, &info
         );
 
         if (status == (EFI_STATUS)EFI_NOT_STARTED) gop->SetMode(gop, 0);
@@ -54,7 +50,8 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
         puts(L"Avalible Resolutions:\r\n");
         for (UINTN i = 0; i < numModes; ++i) {
             okOrPanic(gop->QueryMode(gop, i, &sizeOfInfo, &info));
-            print(L" %s%u: %s%ux%u%s%s",
+            print(
+                L" %s%u: %s%ux%u%s%s",
                 i == nativeMode ? L"*" : L" ",
                 i,
                 i < 10 ? L" " : L"",
@@ -66,7 +63,7 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
             if (i % 2 == 1) puts(L"\r\n");
         }
 
-        TRY_AGAIN:;
+    TRY_AGAIN:;
 
         puts(L"Select resolution (*current): ");
         ST->ConOut->EnableCursor(ST->ConOut, TRUE);
@@ -84,7 +81,7 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
             print(L"display mode \"%u\" invalid!\r\n", selection);
             goto TRY_AGAIN;
         }
-        okOrPanic(gop->SetMode(gop, selection));\
+        okOrPanic(gop->SetMode(gop, selection));
         info = gop->Mode->Info;
         ST->ConOut->ClearScreen(ST->ConOut);
         puts(L"SnakEFI v" VERSION "\r\n");
@@ -95,9 +92,9 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
     EFI_EVENT timer;
     UINTN index;
     snakeInit(inputEx);
-    while(TRUE) {
+    while (TRUE) {
         BS->CreateEvent(EVT_TIMER, TPL_APPLICATION, NULL, NULL, &timer);
-        BS->SetTimer(timer, TimerRelative, 2000000/*unit = 100ns*/);
+        BS->SetTimer(timer, TimerRelative, 2000000 /*unit = 100ns*/);
         snakeDoTick();
         if (!snakeRunning) break;
         BS->WaitForEvent(1, &timer, &index);
@@ -105,17 +102,14 @@ EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {
     }
     snakeDeinit(inputEx);
     drawRect(
-        0, 0,
-        info->HorizontalResolution, info->VerticalResolution,
-        0x000000
+        0, 0, info->HorizontalResolution, info->VerticalResolution, 0x000000
     );
-    if (snakeWon) {
-        puts(L" !! you won !!\r\n");
-    }
+
+    if (snakeWon) { puts(L" !! you won !!\r\n"); }
     print(L"Final score: %u\r\n", snakeLen);
     puts(L"~ press any key to exit ~\r\n");
     BS->Stall(500000);
     waitForUser();
+
     return EFI_SUCCESS;
 }
-

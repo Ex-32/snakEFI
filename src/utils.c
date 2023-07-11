@@ -1,6 +1,6 @@
+#include "utils.h"
 #include <efi.h>
 #include <stdarg.h>
-#include "utils.h"
 
 EFI_SYSTEM_TABLE* ST;
 EFI_BOOT_SERVICES* BS;
@@ -12,9 +12,7 @@ VOID* bmalloc(UINTN size) {
     return buf;
 }
 
-VOID bfree(VOID* buf) {
-    okOrPanic(BS->FreePool(buf));
-}
+VOID bfree(VOID* buf) { okOrPanic(BS->FreePool(buf)); }
 
 VOID waitForUser(VOID) {
     UINTN index;
@@ -52,7 +50,7 @@ void print(CHAR16* fmt, ...) {
         } else if (*str == L'%') {
             fmt_char = TRUE;
         } else {
-            puts((CHAR16[2]){ *str, 0 });
+            puts((CHAR16[2]){*str, 0});
         }
         ++str;
     }
@@ -70,10 +68,23 @@ CHAR16* uintToStr(UINTN num, CHAR16* buf, UINT8 base) {
     // there's no good reason these values can't be computed instead of using
     // a lookup table, but this is more readable and faster, besides, it's only
     // 32 bytes.
-    static const CHAR16 LOOKUP_TAB[16] = {L'0', L'1', L'2', L'3',
-                                          L'4', L'5', L'6', L'7',
-                                          L'8', L'9', L'A', L'B',
-                                          L'C', L'D', L'E', L'F'};
+    static const CHAR16 LOOKUP_TAB[16] = {
+        L'0',
+        L'1',
+        L'2',
+        L'3',
+        L'4',
+        L'5',
+        L'6',
+        L'7',
+        L'8',
+        L'9',
+        L'A',
+        L'B',
+        L'C',
+        L'D',
+        L'E',
+        L'F'};
 
     // special case for 0.
     if (num == 0) {
@@ -102,14 +113,16 @@ CHAR16* uintToStr(UINTN num, CHAR16* buf, UINT8 base) {
     // don't forget your null terminator!
     buf[i] = L'\0';
 
-END: return buf;
+END:
+    return buf;
 }
 
 UINTN strToUint(CHAR16* buf, UINT8 base) {
     if (base > 16 || buf == NULL) return -1;
 
     CHAR16* end = buf;
-    while (*end != 0) ++end;
+    while (*end != 0)
+        ++end;
 
     UINTN x = 0;
     UINTN digit = 1;
@@ -152,9 +165,8 @@ CHAR16* readline(CHAR16* buf, UINTN bufSize) {
             ++i;
         }
 
-        CHAR16 str[2] = { key.UnicodeChar, 0 };
+        CHAR16 str[2] = {key.UnicodeChar, 0};
         ST->ConOut->OutputString(ST->ConOut, str);
     }
     return buf;
 }
-

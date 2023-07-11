@@ -21,4 +21,3 @@ extern UINTN snakeLen;
 VOID snakeInit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx);
 VOID snakeDeinit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx);
 VOID snakeDoTick(VOID);
-
