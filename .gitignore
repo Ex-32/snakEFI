@@ -1,6 +1,7 @@
 
 # misc OS/development debris
 .cache
+.clangd
 compile_commands.json
 desktop.ini
 .directory
