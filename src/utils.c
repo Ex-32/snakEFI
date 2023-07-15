@@ -6,15 +6,15 @@ EFI_SYSTEM_TABLE* ST;
 EFI_BOOT_SERVICES* BS;
 EFI_HANDLE imgHandle;
 
-VOID* bmalloc(UINTN size) {
+void* bmalloc(UINTN size) {
     void* buf;
     okOrPanic(BS->AllocatePool(EfiBootServicesData, size, &buf));
     return buf;
 }
 
-VOID bfree(VOID* buf) { okOrPanic(BS->FreePool(buf)); }
+void bfree(void* buf) { okOrPanic(BS->FreePool(buf)); }
 
-VOID waitForUser(VOID) {
+void waitForUser(void) {
     UINTN index;
     okOrPanic(ST->ConIn->Reset(ST->ConIn, FALSE));
     okOrPanic(BS->WaitForEvent(1, &ST->ConIn->WaitForKey, &index));
@@ -58,10 +58,6 @@ void print(CHAR16* fmt, ...) {
     va_end(args);
 }
 
-// caller is responsible for ensuring that buffer is sufficiently large, meaning
-// that there is one char for each digit in the number for the base used (+1 for
-// the null terminator); for example, a 43 byte buffer should always be
-// sufficient for base 10.
 CHAR16* uintToStr(UINTN num, CHAR16* buf, UINT8 base) {
     if (base > 16 || buf == NULL) goto END;
 
@@ -95,10 +91,9 @@ CHAR16* uintToStr(UINTN num, CHAR16* buf, UINT8 base) {
 
     // create string from number by modulo-ing by base to get least significant
     // digit, then dividing by base to shift the number one digit down.
-    UINTN i = 0;
-    while (num != 0) {
+    UINTN i;
+    for (i = 0; num != 0; ++i) {
         buf[i] = LOOKUP_TAB[num % base];
-        ++i;
         num /= base;
     }
 
@@ -121,24 +116,18 @@ UINTN strToUint(CHAR16* buf, UINT8 base) {
     if (base > 16 || buf == NULL) return -1;
 
     CHAR16* end = buf;
-    while (*end != 0)
-        ++end;
+    while (*end != 0) ++end;
 
     UINTN x = 0;
     UINTN digit = 1;
 
     for (; end >= buf; --end) {
         CHAR16 ch = *end;
-        if (ch >= L'0' && ch <= L'9') {
-            x += (ch - L'0') * digit;
-            digit *= base;
-        } else if (ch >= L'a' && ch <= L'f') {
-            x += (ch - L'a') * digit;
-            digit *= base;
-        } else if (ch >= L'A' && ch <= L'F') {
-            x += (ch - L'A') * digit;
-            digit *= base;
-        }
+        if (ch >= L'0' && ch <= L'9') x += (ch - L'0') * digit;
+        else if (ch >= L'a' && ch <= L'f') x += (ch - L'a') * digit;
+        else if (ch >= L'A' && ch <= L'F') x += (ch - L'A') * digit;
+        else continue;
+        digit *= base;
     }
 
     return x;

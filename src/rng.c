@@ -7,17 +7,15 @@
 
 static UINT64 s[4];
 
-VOID srand(UINT64 seed) {
+void srand(UINT64 seed) {
     *s = seed;
-    // first few values generated are not very random
-    // so we prime it a little.
-    for (UINTN i = 0; i < 8; ++i)
-        (VOID) rand();
+    // first few values generated are not very random, so we prime it a little.
+    for (UINTN i = 0; i < 8; ++i) (void) rand();
 }
 
 inline UINT64 roll64(UINT64 x, INT32 k) { return (x << k) | (x >> (64 - k)); }
 
-UINT64 rand(VOID) {
+UINT64 rand(void) {
     UINT64 const result = roll64(s[1] * 5, 7) * 9;
     UINT64 const t = s[1] << 17;
 

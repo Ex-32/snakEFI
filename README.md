@@ -11,17 +11,19 @@ Download the latest `BOOTX64.EFI` image from the releases page and copy it to a 
 ### Running in a VM
 
 #### Creating the VM image
+
 To run snakEFI in a VM you need to download the image, install the VM dependencies and then run the following from the same directory as the `BOOTX64.EFI` file:
 
 ```bash
 dd if=/dev/zero of=snakEFI.img bs=1k count=1440
 mformat -i snakEFI.img -f 1440 ::
 mmd -i snakEFI.img ::/EFI
-mmd -i snakEFI.img ::/EFI/BOOT 
+mmd -i snakEFI.img ::/EFI/BOOT
 mcopy -o -s -i snakEFI.img BOOTX64.EFI ::/EFI/BOOT
 ```
 
 #### Running the VM image
+
 this will create a image file called `snakEFI.img` which can be run with:
 
 ```bash
@@ -38,7 +40,7 @@ where `$UEFI_IMG` is the path to the OMVF firmware bundle, on my system it's `/u
 
 ## Building
 
-Since UEFI Applications are their own unique executable format (well... it's not *quite* identical to standard windows PE files) handled by the system firmware rather than any kernel, and snakEFI has no runtime dependencies, the precompiled version should run on any amd64, UEFI capable machine, but if for whatever reason you want to compile the project yourself, the process is pretty straight forward.
+Since UEFI Applications are their own unique executable format (well... it's not _quite_ identical to standard windows PE files) handled by the system firmware rather than any kernel, and snakEFI has no runtime dependencies, the precompiled version should run on any amd64, UEFI capable machine, but if for whatever reason you want to compile the project yourself, the process is pretty straight forward.
 
 ### Build Dependencies
 
@@ -50,6 +52,7 @@ Since UEFI Applications are their own unique executable format (well... it's not
 ### Build Process
 
 First, clone the repository.
+
 ```bash
 git clone https://github.com/Ex-32/snakEFI.git && cd snakEFI
 ```
@@ -68,7 +71,7 @@ If your goal is to [run snakEFI in a VM](https://github.com/Ex-32/snakefi/#runni
 make run
 ```
 
-this will compile the project, create the VM image, and run it using `qemu`; if `qemu` exits with an error you may need to adjust the value of `UEFI_IMG` at the top of the `Makefile` to where `OVMF_CODE.fd` is actually located on your system. 
+this will compile the project, create the VM image, and run it using `qemu`; if `qemu` exits with an error you may need to adjust the value of `UEFI_IMG` at the top of the `Makefile` to where `OVMF_CODE.fd` is actually located on your system.
 
 If you just want to create the VM image but not run it you can run:
 
@@ -76,4 +79,4 @@ If you just want to create the VM image but not run it you can run:
 make img
 ```
 
-which will create the `snakEFI.img` file, which can then be run manually as described [here](https://github.com/Ex-32/snakefi/#running-the-vm-image) or by running `make run` 
+which will create the `snakEFI.img` file, which can then be run manually as described [here](https://github.com/Ex-32/snakefi/#running-the-vm-image) or by running `make run`

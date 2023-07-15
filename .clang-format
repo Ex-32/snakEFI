@@ -6,7 +6,8 @@ Language: Cpp
 DerivePointerAlignment: false
 PointerAlignment: Left
 AllowShortBlocksOnASingleLine: true 
-AllowShortIfStatementsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLoopsOnASingleLine: true
 AlignAfterOpenBracket: BlockIndent
 BinPackParameters: false
 BinPackArguments: false

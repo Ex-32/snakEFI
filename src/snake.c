@@ -4,24 +4,25 @@
 #include "utils.h"
 #include <efi.h>
 
-static const UINTN GAME_WIDTH = 10;
-static const UINTN GAME_HEIGHT = 10;
+static const UINT16 GAME_WIDTH = 10;
+static const UINT16 GAME_HEIGHT = 10;
 
-static VOID* notifyHandles[8];
+static void* notifyHandles[8];
 static CHAR16 notifyChars[8] = {L'w', L'W', L'd', L'D', L's', L'S', L'a', L'A'};
 
-BOOLEAN snakeRunning = TRUE;
 BOOLEAN snakeWon = FALSE;
+UINTN snakeLen = 0;
+
 static struct vec2 fruit;
 static struct snakeNode* snakeFront = NULL;
 static struct snakeNode* snakeEnd = NULL;
-UINTN snakeLen = 0;
+
 static enum snakeDirection directionCurrent;
 static volatile enum snakeDirection directionNext;
 
 static UINTN pxPerBlk;
 
-EFI_STATUS EFIAPI snakeKeyNotifyHandler(EFI_KEY_DATA* keyData) {
+static EFI_STATUS EFIAPI snakeKeyNotifyHandler(EFI_KEY_DATA* keyData) {
     switch (keyData->Key.UnicodeChar) {
     case L'w':
     case L'W':
@@ -43,7 +44,7 @@ EFI_STATUS EFIAPI snakeKeyNotifyHandler(EFI_KEY_DATA* keyData) {
     return EFI_SUCCESS;
 }
 
-VOID snakeFrontAppend(struct vec2 value) {
+static void snakeFrontAppend(struct vec2 value) {
     drawRect(
         pxPerBlk * value.x, pxPerBlk * value.y, pxPerBlk, pxPerBlk, 0xA6E3A1
     );
@@ -62,7 +63,7 @@ VOID snakeFrontAppend(struct vec2 value) {
     ++snakeLen;
 }
 
-struct vec2 snakeEndPop(VOID) {
+static struct vec2 snakeEndPop(void) {
     struct vec2 value = snakeEnd->value;
 
     drawRect(
@@ -83,9 +84,9 @@ struct vec2 snakeEndPop(VOID) {
     return value;
 }
 
-inline struct vec2 snakeFrontPeak(VOID) { return snakeFront->value; }
+inline static struct vec2 snakeFrontPeak(void) { return snakeFront->value; }
 
-VOID spawnFruit(VOID) {
+static void spawnFruit(void) {
     struct vec2 newFruit =
         (struct vec2){rand() % GAME_WIDTH, rand() % GAME_HEIGHT};
 
@@ -104,7 +105,7 @@ VOID spawnFruit(VOID) {
     );
 }
 
-VOID snakeInit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx) {
+void snakeInit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx) {
     const EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* const info = gop->Mode->Info;
     const UINT32 hSize = info->HorizontalResolution / GAME_WIDTH;
     const UINT32 vSize = info->VerticalResolution / GAME_HEIGHT;
@@ -135,13 +136,13 @@ VOID snakeInit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx) {
     }
 }
 
-VOID snakeDeinit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx) {
+void snakeDeinit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx) {
     for (UINTN i = 0; i < 8; ++i) {
         inputEx->UnregisterKeyNotify(inputEx, notifyHandles[i]);
     }
 }
 
-VOID snakeDoTick(VOID) {
+BOOLEAN snakeDoTick(void) {
     BOOLEAN newFruit = FALSE;
 
     switch (directionNext) {
@@ -188,10 +189,8 @@ VOID snakeDoTick(VOID) {
         break;
     }
 
-    if (new_head.x == fruit.x && new_head.y == fruit.y)
-        newFruit = TRUE;
-    else
-        snakeEndPop();
+    if (new_head.x == fruit.x && new_head.y == fruit.y) newFruit = TRUE;
+    else snakeEndPop();
 
     struct snakeNode* node = snakeFront;
     while (TRUE) {
@@ -212,7 +211,7 @@ VOID snakeDoTick(VOID) {
 
     if (newFruit) spawnFruit();
 
-    return;
+    return TRUE;
 DEAD:
-    snakeRunning = FALSE;
+    return FALSE;
 }
