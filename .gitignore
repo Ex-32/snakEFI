@@ -1,7 +1,6 @@
 
 # misc OS/development debris
 .cache
-.clangd
 compile_commands.json
 desktop.ini
 .directory
@@ -17,4 +16,4 @@ desktop.ini
 /BOOTX64.EFI
 
 # testing disk image
-/snakefi.img
+/snakEFI.img
