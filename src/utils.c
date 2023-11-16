@@ -1,5 +1,5 @@
 #include "utils.h"
-#include <efi.h>
+#include <efi/efi.h>
 #include <stdarg.h>
 
 EFI_SYSTEM_TABLE* ST;

@@ -1,5 +1,5 @@
 #include "rng.h"
-#include <efi.h>
+#include <efi/efi.h>
 
 // implementation of a xorshiro256** PRNG based on:
 // https://en.wikipedia.org/wiki/Xorshift#xoshiro256**

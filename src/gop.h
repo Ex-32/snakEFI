@@ -1,6 +1,6 @@
 #pragma once
 #include "utils.h"
-#include <efi.h>
+#include <efi/efi.h>
 
 // this value is initialized to NULL, and must be initalized by calling
 // `gopInit()` and receiving `EFI_SUCCESS`

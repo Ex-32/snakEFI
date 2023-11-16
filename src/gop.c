@@ -1,8 +1,7 @@
 #include "gop.h"
-#include "efierr.h"
 #include "utils.h"
 #include "version.h"
-#include <efi.h>
+#include <efi/efi.h>
 
 static EFI_GRAPHICS_OUTPUT_PROTOCOL* gop = NULL;
 

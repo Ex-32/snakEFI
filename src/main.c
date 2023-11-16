@@ -3,7 +3,7 @@
 #include "snake.h"
 #include "utils.h"
 #include "version.h"
-#include <efi.h>
+#include <efi/efi.h>
 
 // entry point for EFI application
 EFI_STATUS efi_main(EFI_HANDLE ih, EFI_SYSTEM_TABLE* st) {

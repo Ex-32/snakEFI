@@ -1,5 +1,5 @@
 #pragma once
-#include <efi.h>
+#include <efi/efi.h>
 
 // vector representing a location on the game grid (either a snake segment or a
 // fruit segment)

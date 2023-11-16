@@ -17,3 +17,6 @@ desktop.ini
 
 # testing disk image
 /snakEFI.img
+
+# nix output directory
+/result

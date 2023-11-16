@@ -2,7 +2,7 @@
 #include "gop.h"
 #include "rng.h"
 #include "utils.h"
-#include <efi.h>
+#include <efi/efi.h>
 
 static const UINT16 GAME_WIDTH = 10;
 static const UINT16 GAME_HEIGHT = 10;

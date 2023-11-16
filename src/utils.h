@@ -1,5 +1,5 @@
 #pragma once
-#include <efi.h>
+#include <efi/efi.h>
 
 extern EFI_SYSTEM_TABLE* ST;
 extern EFI_BOOT_SERVICES* BS;
