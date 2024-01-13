@@ -7,7 +7,7 @@ UEFI_IMG = /usr/share/edk2/x64/OVMF_CODE.fd
 
 # boiler plate config
 CC = clang
-CFLAGS = -target x86_64-unknown-windows -ffreestanding -fshort-wchar -mno-red-zone -I/usr/lib/clang/*/include/ -Wall -Wextra -O3
+CFLAGS = -target x86_64-unknown-windows -ffreestanding -fshort-wchar -mno-red-zone -I/usr/include -I/usr/lib/clang/*/include/ -Wall -Wextra -O3
 LDFLAGS = -target x86_64-unknown-windows -static-pie -nostdlib -Wl,-entry:efi_main -Wl,-subsystem:efi_application -fuse-ld=lld-link -flto=full -O3
 IMG_FILE = snakEFI.img 
 OBJDIR = ./obj
