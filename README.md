@@ -10,6 +10,20 @@ Download the latest `BOOTX64.EFI` image from the releases page and copy it to a 
 
 ### Running in a VM
 
+nix users, you can download, build, and run a VM image with:
+
+```bash
+nix run 'github:Ex-32/snakEFI#vm'
+```
+
+for everyone else...
+
+#### VM dependencies
+
+- `mtools` (for creating/editing FAT32 images)
+- `qemu` (for running program in VM)
+- `edk2-ovmf` (UEFI firmware for VM)M dependencies
+
 #### Creating the VM image
 
 To run snakEFI in a VM you need to download the image, install the VM dependencies and then run the following from the same directory as the `BOOTX64.EFI` file:
@@ -32,15 +46,19 @@ sudo qemu-system-x86_64 -drive if=pflash,format=raw,file=$UEFI_IMG -drive format
 
 where `$UEFI_IMG` is the path to the OMVF firmware bundle, on my system it's `/usr/share/edk2/x64/OVMF_CODE.fd`
 
-#### VM dependencies
-
-- `mtools` (for creating/editing FAT32 images)
-- `qemu` (for running program in VM)
-- `edk2-ovmf` (UEFI firmware for VM)
-
 ## Building
 
 Since UEFI Applications are their own unique executable format (well... it's not _quite_ identical to standard windows PE files) handled by the system firmware rather than any kernel, and snakEFI has no runtime dependencies, the precompiled version should run on any amd64, UEFI capable machine, but if for whatever reason you want to compile the project yourself, the process is pretty straight forward.
+
+### Nix
+
+if you're using nix, you can build this project by just running one of these:
+
+```bash
+nix build 'github:Ex-32/snakEFI'       # BOOTX64.EFI
+nix build 'github:Ex-32/snakEFI#image' # snakEFI.img
+nix build 'github:Ex-32/snakEFI#vm'    # snakEFI-vm-wrapper
+```
 
 ### Build Dependencies
 
