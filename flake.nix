@@ -7,7 +7,7 @@
     default-systems.url = "github:nix-systems/default";
   };
 
-  outputs = inputs @ { self, nixpkgs, ... }:
+  outputs = inputs @ { self, ... }:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = (import inputs.default-systems);
       perSystem = { pkgs, ... }: { 
