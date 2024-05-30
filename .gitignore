@@ -1,13 +1,14 @@
 
 # misc OS/development debris
-.cache
-compile_commands.json
-desktop.ini
-.directory
 .DS_Store
 .[Tt]rash*
+.cache
+.directory
+.direnv
 .vs
 .vscode
+compile_commands.json
+desktop.ini
 
 # intermediate object files
 /obj

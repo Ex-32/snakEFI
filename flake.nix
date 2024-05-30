@@ -1,5 +1,5 @@
 {
-  description = "Example cmake/c++ flake";
+  description = "a barebones UEFI implementation of the game snake";
   
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
@@ -10,11 +10,11 @@
   outputs = inputs @ { self, ... }:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = (import inputs.default-systems);
-      perSystem = { pkgs, ... }: { 
-        packages = let 
-          name = "snakEFI";
-          version = "1.0.2";
-        in rec {
+      perSystem = { pkgs, ... }: let
+        name = "snakefi";
+        version = "1.0.2";
+      in {
+        packages = rec {
           default = pkgs.stdenv.mkDerivation {
             pname = "${name}";
             inherit version;
@@ -72,6 +72,18 @@
                 -drive format=raw,file="$IMG_TMP/snakEFI.img"
             '';
           };
+        };
+        devShells.default = pkgs.mkShell {
+          inherit name;
+          inherit version;
+          hardeningDisable = [ "pic" "stackprotector" ];
+          packages = with pkgs; [
+            gnu-efi
+            clang-tools
+            clang
+            lld
+            bear
+          ];
         };
       };
     };
