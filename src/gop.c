@@ -52,7 +52,7 @@ EFI_STATUS setResolution(void) {
 
     TRY_AGAIN:;
         puts(L"Select resolution (*current): ");
-        (void) ST->ConOut->EnableCursor(ST->ConOut, TRUE);
+        (void)ST->ConOut->EnableCursor(ST->ConOut, TRUE);
         okOrPanic(ST->ConIn->Reset(ST->ConIn, FALSE));
 
         UINTN selection;

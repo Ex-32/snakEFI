@@ -21,6 +21,8 @@ static enum snakeDirection directionCurrent;
 static volatile enum snakeDirection directionNext;
 
 static UINTN pxPerBlk;
+static UINTN pxOffsetX;
+static UINTN pxOffsetY;
 
 static EFI_STATUS EFIAPI snakeKeyNotifyHandler(EFI_KEY_DATA* keyData) {
     switch (keyData->Key.UnicodeChar) {
@@ -46,7 +48,11 @@ static EFI_STATUS EFIAPI snakeKeyNotifyHandler(EFI_KEY_DATA* keyData) {
 
 static void snakeFrontAppend(struct vec2 value) {
     drawRect(
-        pxPerBlk * value.x, pxPerBlk * value.y, pxPerBlk, pxPerBlk, 0xA6E3A1
+        pxOffsetX + (pxPerBlk * value.x),
+        pxOffsetY + (pxPerBlk * value.y),
+        pxPerBlk,
+        pxPerBlk,
+        0xA6E3A1
     );
     struct snakeNode* node = bmalloc(sizeof(struct snakeNode));
     node->value = value;
@@ -67,7 +73,11 @@ static struct vec2 snakeEndPop(void) {
     struct vec2 value = snakeEnd->value;
 
     drawRect(
-        pxPerBlk * value.x, pxPerBlk * value.y, pxPerBlk, pxPerBlk, 0x11111B
+        pxOffsetX + (pxPerBlk * value.x),
+        pxOffsetY + (pxPerBlk * value.y),
+        pxPerBlk,
+        pxPerBlk,
+        0x11111B
     );
 
     if (snakeFront == snakeEnd) {
@@ -101,7 +111,11 @@ static void spawnFruit(void) {
 
     fruit = newFruit;
     drawRect(
-        pxPerBlk * fruit.x, pxPerBlk * fruit.y, pxPerBlk, pxPerBlk, 0xF38BA8
+        pxOffsetX + (pxPerBlk * fruit.x),
+        pxOffsetY + (pxPerBlk * fruit.y),
+        pxPerBlk,
+        pxPerBlk,
+        0xF38BA8
     );
 }
 
@@ -111,18 +125,31 @@ void snakeInit(EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL* inputEx) {
     const UINT32 vSize = info->VerticalResolution / GAME_HEIGHT;
     pxPerBlk = hSize < vSize ? hSize : vSize;
 
+    pxOffsetX = (info->HorizontalResolution - (pxPerBlk * GAME_WIDTH)) / 2;
+    pxOffsetY = (info->VerticalResolution - (pxPerBlk * GAME_HEIGHT)) / 2;
+
     drawRect(
         0, 0, info->HorizontalResolution, info->VerticalResolution, 0x1E1E2E
     );
-    drawRect(0, 0, GAME_WIDTH * pxPerBlk, GAME_HEIGHT * pxPerBlk, 0x11111B);
+    drawRect(
+        pxOffsetX,
+        pxOffsetY,
+        GAME_WIDTH * pxPerBlk,
+        GAME_HEIGHT * pxPerBlk,
+        0x11111B
+    );
 
     EFI_TIME time;
     ST->RuntimeServices->GetTime(&time, NULL);
-    srand(
-        (time.Year + 1) * (time.Month + 1) * (time.Day + 1) * (time.Hour + 1) *
-            (time.Minute + 1) * (time.Second) +
-        time.Nanosecond
-    );
+    UINT64 seed = 0;
+    seed = (seed << 0 | time.Second);
+    seed = (seed << 8 | time.Minute);
+    seed = (seed << 8 | time.Hour);
+    seed = (seed << 8 | time.Day);
+    seed = (seed << 8 | time.Month);
+    seed = (seed << 16 | time.Day);
+    seed ^= time.Nanosecond;
+    srand(seed);
 
     spawnFruit();
     snakeFrontAppend((struct vec2){GAME_WIDTH / 2, GAME_HEIGHT / 2});

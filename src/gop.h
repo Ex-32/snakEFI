@@ -2,7 +2,7 @@
 #include "utils.h"
 #include <efi/efi.h>
 
-// this value is initialized to NULL, and must be initalized by calling
+// this value is initialized to NULL, and must be initialized by calling
 // `gopInit()` and receiving `EFI_SUCCESS`
 extern EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
 
